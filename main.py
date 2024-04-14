@@ -2,10 +2,10 @@ import torch
 import torchvision
 
 
-from Build_Dataset import build_or_get_dataset, get_dataloader, imshow
+from build_dataset import build_or_get_dataset, get_dataloader, imshow
 
 trainset, testset, classes = build_or_get_dataset('svhn', '../data')
-trainloader, testloader = get_dataloader(trainset, testset)
+trainloader = get_dataloader(trainset)
 
 dataiter = iter(trainloader)
 images, labels = next(dataiter)  # Get the first batch of images and labels

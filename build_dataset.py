@@ -21,10 +21,9 @@ def build_or_get_dataset(name, root='../data'):
         classes = tuple(str(i) for i in range(10))
     return trainset, testset, classes
 
-def get_dataloader(trainset, testset, batch_size = 64):
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,shuffle=True)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,shuffle=False)
-    return trainloader, testloader
+def get_dataloader(set, batch_size = 64, shuffle= True):
+    dataloader = torch.utils.data.DataLoader(set, batch_size=batch_size,shuffle=shuffle)
+    return dataloader
 
 transform_mnist = transforms.Compose([
     transforms.ToTensor(),  # Convert to tensor
