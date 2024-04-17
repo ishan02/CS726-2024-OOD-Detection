@@ -1,6 +1,6 @@
 def get_config():
     return {
-        "batch_size": 32,
+        "batch_size": 48,
         "epochs": 10,
         "learning_rate": 0.001,
         "layers":40,
@@ -8,10 +8,8 @@ def get_config():
         "droprate":0.3,
         "momentum":0.9,
         "decay":0.0005,
-        "save":"./checkpoints",
-        "load":"./checkpoints/file_name",
-        "test":True, #test only flag
-
-
-
+        "folder":'./checkpoints',
+        "save":"./checkpoints/epoch",
+        "load_epoch":10,
+        "preload": False
     }

@@ -1,0 +1,64 @@
+2024-04-17 13:13:44 - INFO - Training configuration:
+2024-04-17 13:13:44 - INFO - batch_size: 48
+2024-04-17 13:13:44 - INFO - epochs: 10
+2024-04-17 13:13:44 - INFO - learning_rate: 0.001
+2024-04-17 13:13:44 - INFO - layers: 40
+2024-04-17 13:13:44 - INFO - widen_factor: 2
+2024-04-17 13:13:44 - INFO - droprate: 0.3
+2024-04-17 13:13:44 - INFO - momentum: 0.9
+2024-04-17 13:13:44 - INFO - decay: 0.0005
+2024-04-17 13:13:44 - INFO - folder: ./checkpoints
+2024-04-17 13:13:44 - INFO - save: ./checkpoints/epoch
+2024-04-17 13:13:44 - INFO - load_epoch: 10
+2024-04-17 13:13:44 - INFO - preload: False
+2024-04-17 13:13:45 - INFO - Using Device: cuda
+2024-04-17 13:16:16 - INFO - Epoch 1: Train Loss: 2.071, Train Accuracy: 19.62%
+2024-04-17 13:16:16 - INFO - Checkpoint saved at ./checkpoints/epoch_0.pth
+2024-04-17 13:16:21 - INFO - Epoch 1: Test Accuracy: 10.66%
+2024-04-17 13:16:35 - INFO - Epoch 1: Max Softmax Scores (CIFAR-10 first 5): [0.20329782, 0.13558139, 0.14178738, 0.14475957, 0.23253466]
+2024-04-17 13:16:35 - INFO - Epoch 1: Max Softmax Scores (SVHN first 5): [0.23851267, 0.18510765, 0.2022584, 0.20062645, 0.21555595]
+2024-04-17 13:17:46 - INFO - Epoch 2: Train Loss: 1.821, Train Accuracy: 29.47%
+2024-04-17 13:17:47 - INFO - Checkpoint saved at ./checkpoints/epoch_1.pth
+2024-04-17 13:17:52 - INFO - Epoch 2: Test Accuracy: 13.06%
+2024-04-17 13:18:05 - INFO - Epoch 2: Max Softmax Scores (CIFAR-10 first 5): [0.24266537, 0.33730787, 0.14552693, 0.16748628, 0.3200585]
+2024-04-17 13:18:05 - INFO - Epoch 2: Max Softmax Scores (SVHN first 5): [0.32455322, 0.23560652, 0.20176853, 0.23158452, 0.27423027]
+2024-04-17 13:19:22 - INFO - Epoch 3: Train Loss: 1.711, Train Accuracy: 33.41%
+2024-04-17 13:19:22 - INFO - Checkpoint saved at ./checkpoints/epoch_2.pth
+2024-04-17 13:19:27 - INFO - Epoch 3: Test Accuracy: 16.39%
+2024-04-17 13:19:42 - INFO - Epoch 3: Max Softmax Scores (CIFAR-10 first 5): [0.27840713, 0.30104685, 0.37337258, 0.18985108, 0.42549863]
+2024-04-17 13:19:42 - INFO - Epoch 3: Max Softmax Scores (SVHN first 5): [0.4183429, 0.41621614, 0.32495302, 0.3720775, 0.4314983]
+2024-04-17 13:21:00 - INFO - Epoch 4: Train Loss: 1.612, Train Accuracy: 38.03%
+2024-04-17 13:21:01 - INFO - Checkpoint saved at ./checkpoints/epoch_3.pth
+2024-04-17 13:21:06 - INFO - Epoch 4: Test Accuracy: 28.77%
+2024-04-17 13:21:20 - INFO - Epoch 4: Max Softmax Scores (CIFAR-10 first 5): [0.34294346, 0.5874228, 0.57903767, 0.51126575, 0.4483665]
+2024-04-17 13:21:20 - INFO - Epoch 4: Max Softmax Scores (SVHN first 5): [0.5387729, 0.5044909, 0.32159513, 0.38853848, 0.52953035]
+2024-04-17 13:22:40 - INFO - Epoch 5: Train Loss: 1.524, Train Accuracy: 41.88%
+2024-04-17 13:22:40 - INFO - Checkpoint saved at ./checkpoints/epoch_4.pth
+2024-04-17 13:22:46 - INFO - Epoch 5: Test Accuracy: 34.14%
+2024-04-17 13:23:01 - INFO - Epoch 5: Max Softmax Scores (CIFAR-10 first 5): [0.41634783, 0.84769315, 0.80693084, 0.846921, 0.74628454]
+2024-04-17 13:23:01 - INFO - Epoch 5: Max Softmax Scores (SVHN first 5): [0.53319615, 0.63460875, 0.48432842, 0.5250691, 0.6102692]
+2024-04-17 13:24:21 - INFO - Epoch 6: Train Loss: 1.428, Train Accuracy: 46.27%
+2024-04-17 13:24:21 - INFO - Checkpoint saved at ./checkpoints/epoch_5.pth
+2024-04-17 13:24:27 - INFO - Epoch 6: Test Accuracy: 35.21%
+2024-04-17 13:24:41 - INFO - Epoch 6: Max Softmax Scores (CIFAR-10 first 5): [0.5347651, 0.98562235, 0.9619981, 0.9508875, 0.92954427]
+2024-04-17 13:24:41 - INFO - Epoch 6: Max Softmax Scores (SVHN first 5): [0.5843628, 0.50198764, 0.3913644, 0.33425033, 0.49088615]
+2024-04-17 13:26:07 - INFO - Epoch 7: Train Loss: 1.338, Train Accuracy: 50.54%
+2024-04-17 13:26:07 - INFO - Checkpoint saved at ./checkpoints/epoch_6.pth
+2024-04-17 13:26:13 - INFO - Epoch 7: Test Accuracy: 39.04%
+2024-04-17 13:26:28 - INFO - Epoch 7: Max Softmax Scores (CIFAR-10 first 5): [0.6439209, 0.98763126, 0.9397456, 0.8895437, 0.9668792]
+2024-04-17 13:26:28 - INFO - Epoch 7: Max Softmax Scores (SVHN first 5): [0.5307816, 0.4158944, 0.60500973, 0.46256, 0.4086577]
+2024-04-17 13:27:54 - INFO - Epoch 8: Train Loss: 1.258, Train Accuracy: 53.67%
+2024-04-17 13:27:54 - INFO - Checkpoint saved at ./checkpoints/epoch_7.pth
+2024-04-17 13:28:00 - INFO - Epoch 8: Test Accuracy: 43.63%
+2024-04-17 13:28:15 - INFO - Epoch 8: Max Softmax Scores (CIFAR-10 first 5): [0.5293081, 0.98726153, 0.98027486, 0.93319446, 0.95875174]
+2024-04-17 13:28:15 - INFO - Epoch 8: Max Softmax Scores (SVHN first 5): [0.4621885, 0.44056845, 0.64960206, 0.52413946, 0.46015677]
+2024-04-17 13:29:39 - INFO - Epoch 9: Train Loss: 1.198, Train Accuracy: 56.37%
+2024-04-17 13:29:39 - INFO - Checkpoint saved at ./checkpoints/epoch_8.pth
+2024-04-17 13:29:44 - INFO - Epoch 9: Test Accuracy: 48.79%
+2024-04-17 13:29:58 - INFO - Epoch 9: Max Softmax Scores (CIFAR-10 first 5): [0.4839488, 0.8961085, 0.9888438, 0.8962798, 0.9646185]
+2024-04-17 13:29:58 - INFO - Epoch 9: Max Softmax Scores (SVHN first 5): [0.5175186, 0.37262458, 0.602603, 0.3840283, 0.44630685]
+2024-04-17 13:31:13 - INFO - Epoch 10: Train Loss: 1.134, Train Accuracy: 58.79%
+2024-04-17 13:31:14 - INFO - Checkpoint saved at ./checkpoints/epoch_9.pth
+2024-04-17 13:31:19 - INFO - Epoch 10: Test Accuracy: 55.34%
+2024-04-17 13:31:32 - INFO - Epoch 10: Max Softmax Scores (CIFAR-10 first 5): [0.5094275, 0.960515, 0.9932627, 0.9550639, 0.965217]
+2024-04-17 13:31:32 - INFO - Epoch 10: Max Softmax Scores (SVHN first 5): [0.53829217, 0.5187496, 0.7335239, 0.46678156, 0.4458249]
