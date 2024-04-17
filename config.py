@@ -1,7 +1,7 @@
 def get_config():
     return {
-        "batch_size": 48,
-        "epochs": 10,
+        "batch_size": 256,
+        "epochs": 20,
         "learning_rate": 0.001,
         "layers":40,
         "widen_factor":2,
@@ -10,6 +10,6 @@ def get_config():
         "decay":0.0005,
         "folder":'./checkpoints',
         "save":"./checkpoints/epoch",
-        "load_epoch":10,
-        "preload": False
+        "load_epoch":13,
+        "preload": True
     }
