@@ -6,12 +6,30 @@ import torch.nn.functional as F
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.metrics import roc_curve, auc
 
 from build_dataset import build_or_get_dataset, get_dataloader
 from config import get_config
 from wide_resnet import WideResNet
+import logging
 
 config = get_config()
+log_dir = './logs'
+os.makedirs(log_dir, exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    handlers=[
+        logging.FileHandler(f"{log_dir}/results.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+logger.info("Training configuration:")
+for key, value in config.items():
+    logger.info(f"{key}: {value}")
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 _, testset_in, classes = build_or_get_dataset('cifar10', '../data')
@@ -41,7 +59,7 @@ def test(net, device, dataloader):
             max_scores = softmax_scores.max(dim=1).values
             max_softmax_scores.extend(max_scores.cpu().numpy())
 
-    return {'max_softmax_scores': max_softmax_scores}
+    return max_softmax_scores
 
 
 def plot_softmax_histogram(max_softmax_scores_in, max_softmax_scores_out):
@@ -52,11 +70,61 @@ def plot_softmax_histogram(max_softmax_scores_in, max_softmax_scores_out):
     plt.ylabel('Density')
     plt.title('Maximum Softmax Score Distribution: CIFAR-10 vs. SVHN')
     plt.legend()
-    plt.savefig('softmax_score_histogram.png')
+    plt.savefig('./fig/softmax_score_histogram.png')
     plt.show()
 
 
 max_softmax_scores_in = test(net, device, testloader_in)
 max_softmax_scores_out = test(net, device, testloader_out)
+print("max_softmax_scores_in shape:", np.shape(max_softmax_scores_in))
+print("max_softmax_scores_out shape:", np.shape(max_softmax_scores_out))
 
 plot_softmax_histogram(max_softmax_scores_in, max_softmax_scores_out)
+
+def calculate_fpr95(max_softmax_scores_in, max_softmax_scores_out):
+    # Determine the TNR (True Negative Rate) threshold for 95% TNR
+    num_in = len(max_softmax_scores_in)
+    num_out = len(max_softmax_scores_out)
+    total_negatives = num_in + num_out
+    
+    # Sort maximum softmax scores (higher score indicates more confident ID prediction)
+    all_scores = np.concatenate([max_softmax_scores_in, max_softmax_scores_out])
+    labels = np.concatenate([np.zeros(num_in), np.ones(num_out)])  # 0 for in-distribution, 1 for out-of-distribution
+    
+    # Determine threshold for achieving 95% TNR
+    thresholds = np.sort(all_scores)
+    tnr_threshold_index = int(0.95 * num_in)  # Index for 95% TNR
+    tnr_threshold = thresholds[tnr_threshold_index]
+
+    # Calculate FPR at 95% TNR
+    fpr95 = np.sum((all_scores >= tnr_threshold) & (labels == 1)) / num_out
+    
+    return fpr95
+
+def calculate_auroc(max_softmax_scores_in, max_softmax_scores_out):
+    # Concatenate scores and labels
+    all_scores = np.concatenate([max_softmax_scores_in, max_softmax_scores_out])
+    labels = np.concatenate([np.zeros(len(max_softmax_scores_in)), np.ones(len(max_softmax_scores_out))])
+    
+    # Compute ROC curve and AUROC
+    fpr, tpr, _ = roc_curve(labels, all_scores, pos_label=1)
+    auroc = auc(fpr, tpr)
+    plt.figure(figsize=(8, 6))
+    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'AUROC = {auroc:.2f}')
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic (ROC) Curve')
+    plt.savefig('./fig/ROC Curve.png')
+    plt.legend(loc='lower right')
+    plt.show()
+
+    return auroc
+
+
+
+fpr95 = calculate_fpr95(max_softmax_scores_in, max_softmax_scores_out)
+auroc= calculate_auroc(max_softmax_scores_in, max_softmax_scores_out)
+print(f"AUROC: {auroc:.4f}")
+
+logger.info(f"AUROC: {auroc:.4f} FPR95: {fpr95:.4f}")
