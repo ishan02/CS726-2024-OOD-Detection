@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import sys
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -8,13 +9,20 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import roc_curve, auc
 
+# Get the parent directory of the current script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+# Add the parent directory to the Python path
+sys.path.append(parent_dir)
+
+
 from build_dataset import build_or_get_dataset, get_dataloader
 from config import get_config
 from wide_resnet import WideResNet
 import logging
 
 config = get_config()
-log_dir = './logs'
+log_dir = './WRN/logs'
 os.makedirs(log_dir, exist_ok=True)
 logging.basicConfig(
     level=logging.INFO, 
@@ -70,7 +78,7 @@ def plot_softmax_histogram(max_softmax_scores_in, max_softmax_scores_out):
     plt.ylabel('Density')
     plt.title('Maximum Softmax Score Distribution: CIFAR-10 vs. SVHN')
     plt.legend()
-    plt.savefig('./fig/softmax_score_histogram.png')
+    plt.savefig('./WRN/fig/softmax_score_histogram.png')
     plt.show()
 
 
@@ -115,7 +123,7 @@ def calculate_auroc(max_softmax_scores_in, max_softmax_scores_out):
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic (ROC) Curve')
-    plt.savefig('./fig/ROC Curve.png')
+    plt.savefig('./WRN/fig/ROC Curve.png')
     plt.legend(loc='lower right')
     plt.show()
 

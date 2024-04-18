@@ -8,12 +8,18 @@ import torch.backends.cudnn as cudnn
 import torch.nn.functional as F
 from tqdm import tqdm
 import logging
+import sys
+# Get the parent directory of the current script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+# Add the parent directory to the Python path
+sys.path.append(parent_dir)
 
 from build_dataset import build_or_get_dataset, get_dataloader
 from config import get_config
 from wide_resnet import WideResNet
 config = get_config()
-log_dir = './logs'
+log_dir = './WRN/logs'
 os.makedirs(log_dir, exist_ok=True)
 os.makedirs(config['folder'], exist_ok=True)
 
