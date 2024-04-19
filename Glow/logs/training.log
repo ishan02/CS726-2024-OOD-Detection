@@ -1,0 +1,115 @@
+2024-04-19 13:46:47 - INFO - Training configuration:
+2024-04-19 13:46:47 - INFO - hidden_channels: 512
+2024-04-19 13:46:47 - INFO - K: 32
+2024-04-19 13:46:47 - INFO - L: 3
+2024-04-19 13:46:47 - INFO - actnorm_scale: 1.0
+2024-04-19 13:46:47 - INFO - flow_permutation: invconv
+2024-04-19 13:46:47 - INFO - flow_coupling: affine
+2024-04-19 13:46:47 - INFO - LU_decomposed: True
+2024-04-19 13:46:47 - INFO - learn_top: True
+2024-04-19 13:46:47 - INFO - y_condition: False
+2024-04-19 13:46:47 - INFO - y_weight: 0.01
+2024-04-19 13:46:47 - INFO - max_grad_clip: 0
+2024-04-19 13:46:47 - INFO - max_grad_norm: 0
+2024-04-19 13:46:47 - INFO - batch_size: 64
+2024-04-19 13:46:47 - INFO - epochs: 10
+2024-04-19 13:46:47 - INFO - lr: 0.0005
+2024-04-19 13:46:47 - INFO - warmup: 5
+2024-04-19 13:46:47 - INFO - n_init_batches: 8
+2024-04-19 13:46:47 - INFO - droprate: 0.3
+2024-04-19 13:46:47 - INFO - momentum: 0.9
+2024-04-19 13:46:47 - INFO - decay: 0.0005
+2024-04-19 13:46:47 - INFO - output_dir: ./Glow/checkpoints
+2024-04-19 13:46:47 - INFO - saved_model: 
+2024-04-19 13:46:47 - INFO - saved_optimizer: 
+2024-04-19 13:46:47 - INFO - seed: 0
+2024-04-19 13:46:47 - INFO - Using Device: cuda
+2024-04-19 13:48:52 - INFO - Training configuration:
+2024-04-19 13:48:52 - INFO - hidden_channels: 512
+2024-04-19 13:48:52 - INFO - K: 32
+2024-04-19 13:48:52 - INFO - L: 3
+2024-04-19 13:48:52 - INFO - actnorm_scale: 1.0
+2024-04-19 13:48:52 - INFO - flow_permutation: invconv
+2024-04-19 13:48:52 - INFO - flow_coupling: affine
+2024-04-19 13:48:52 - INFO - LU_decomposed: True
+2024-04-19 13:48:52 - INFO - learn_top: True
+2024-04-19 13:48:52 - INFO - y_condition: False
+2024-04-19 13:48:52 - INFO - y_weight: 0.01
+2024-04-19 13:48:52 - INFO - max_grad_clip: 0
+2024-04-19 13:48:52 - INFO - max_grad_norm: 0
+2024-04-19 13:48:52 - INFO - batch_size: 64
+2024-04-19 13:48:52 - INFO - epochs: 10
+2024-04-19 13:48:52 - INFO - lr: 0.0005
+2024-04-19 13:48:52 - INFO - warmup: 5
+2024-04-19 13:48:52 - INFO - n_init_batches: 8
+2024-04-19 13:48:52 - INFO - droprate: 0.3
+2024-04-19 13:48:52 - INFO - momentum: 0.9
+2024-04-19 13:48:52 - INFO - decay: 0.0005
+2024-04-19 13:48:52 - INFO - output_dir: ./Glow/checkpoints
+2024-04-19 13:48:52 - INFO - saved_model: 
+2024-04-19 13:48:52 - INFO - saved_optimizer: 
+2024-04-19 13:48:52 - INFO - seed: 0
+2024-04-19 13:48:52 - INFO - Using Device: cuda
+2024-04-19 13:48:58 - INFO - Using seed: 0
+2024-04-19 13:48:59 - INFO - Engine run starting with max_epochs=10.
+2024-04-19 13:59:54 - INFO - Engine run starting with max_epochs=1.
+2024-04-19 14:00:32 - INFO - Epoch[1] Complete. Time taken: 00:00:38.188
+2024-04-19 14:00:32 - INFO - Engine run complete. Time taken: 00:00:38.188
+2024-04-19 14:00:32 - INFO - Validation Results - Epoch: 1 total_loss: 4.12
+2024-04-19 14:00:32 - INFO - Epoch 1 done. Time per batch: 0.803[s]
+2024-04-19 14:00:32 - INFO - Epoch[1] Complete. Time taken: 00:11:28.142
+2024-04-19 14:11:25 - INFO - Engine run starting with max_epochs=1.
+2024-04-19 14:12:03 - INFO - Epoch[1] Complete. Time taken: 00:00:37.879
+2024-04-19 14:12:03 - INFO - Engine run complete. Time taken: 00:00:37.879
+2024-04-19 14:12:03 - INFO - Validation Results - Epoch: 2 total_loss: 4.02
+2024-04-19 14:12:03 - INFO - Epoch 2 done. Time per batch: 0.813[s]
+2024-04-19 14:12:03 - INFO - Epoch[2] Complete. Time taken: 00:11:31.128
+2024-04-19 14:23:01 - INFO - Engine run starting with max_epochs=1.
+2024-04-19 14:23:39 - INFO - Epoch[1] Complete. Time taken: 00:00:37.959
+2024-04-19 14:23:39 - INFO - Engine run complete. Time taken: 00:00:37.960
+2024-04-19 14:23:39 - INFO - Validation Results - Epoch: 3 total_loss: 3.93
+2024-04-19 14:23:39 - INFO - Epoch 3 done. Time per batch: 0.813[s]
+2024-04-19 14:23:39 - INFO - Epoch[3] Complete. Time taken: 00:11:35.834
+2024-04-19 14:34:37 - INFO - Engine run starting with max_epochs=1.
+2024-04-19 14:35:15 - INFO - Epoch[1] Complete. Time taken: 00:00:37.990
+2024-04-19 14:35:15 - INFO - Engine run complete. Time taken: 00:00:37.990
+2024-04-19 14:35:15 - INFO - Validation Results - Epoch: 4 total_loss: 3.88
+2024-04-19 14:35:15 - INFO - Epoch 4 done. Time per batch: 0.813[s]
+2024-04-19 14:35:15 - INFO - Epoch[4] Complete. Time taken: 00:11:36.226
+2024-04-19 14:46:18 - INFO - Engine run starting with max_epochs=1.
+2024-04-19 14:46:55 - INFO - Epoch[1] Complete. Time taken: 00:00:37.895
+2024-04-19 14:46:55 - INFO - Engine run complete. Time taken: 00:00:37.895
+2024-04-19 14:46:55 - INFO - Validation Results - Epoch: 5 total_loss: 3.82
+2024-04-19 14:46:55 - INFO - Epoch 5 done. Time per batch: 0.813[s]
+2024-04-19 14:46:55 - INFO - Epoch[5] Complete. Time taken: 00:11:40.304
+2024-04-19 14:57:51 - INFO - Engine run starting with max_epochs=1.
+2024-04-19 14:58:29 - INFO - Epoch[1] Complete. Time taken: 00:00:37.782
+2024-04-19 14:58:29 - INFO - Engine run complete. Time taken: 00:00:37.782
+2024-04-19 14:58:29 - INFO - Validation Results - Epoch: 6 total_loss: 3.74
+2024-04-19 14:58:29 - INFO - Epoch 6 done. Time per batch: 0.810[s]
+2024-04-19 14:58:29 - INFO - Epoch[6] Complete. Time taken: 00:11:33.566
+2024-04-19 15:09:29 - INFO - Engine run starting with max_epochs=1.
+2024-04-19 15:10:07 - INFO - Epoch[1] Complete. Time taken: 00:00:38.189
+2024-04-19 15:10:07 - INFO - Engine run complete. Time taken: 00:00:38.189
+2024-04-19 15:10:07 - INFO - Validation Results - Epoch: 7 total_loss: 3.72
+2024-04-19 15:10:07 - INFO - Epoch 7 done. Time per batch: 0.810[s]
+2024-04-19 15:10:07 - INFO - Epoch[7] Complete. Time taken: 00:11:38.495
+2024-04-19 15:21:06 - INFO - Engine run starting with max_epochs=1.
+2024-04-19 15:21:44 - INFO - Epoch[1] Complete. Time taken: 00:00:37.913
+2024-04-19 15:21:44 - INFO - Engine run complete. Time taken: 00:00:37.913
+2024-04-19 15:21:44 - INFO - Validation Results - Epoch: 8 total_loss: 3.67
+2024-04-19 15:21:44 - INFO - Epoch 8 done. Time per batch: 0.809[s]
+2024-04-19 15:21:44 - INFO - Epoch[8] Complete. Time taken: 00:11:36.553
+2024-04-19 15:32:39 - INFO - Engine run starting with max_epochs=1.
+2024-04-19 15:33:17 - INFO - Epoch[1] Complete. Time taken: 00:00:37.813
+2024-04-19 15:33:17 - INFO - Engine run complete. Time taken: 00:00:37.814
+2024-04-19 15:33:17 - INFO - Validation Results - Epoch: 9 total_loss: 3.65
+2024-04-19 15:33:17 - INFO - Epoch 9 done. Time per batch: 0.808[s]
+2024-04-19 15:33:17 - INFO - Epoch[9] Complete. Time taken: 00:11:32.625
+2024-04-19 15:44:11 - INFO - Engine run starting with max_epochs=1.
+2024-04-19 15:44:49 - INFO - Epoch[1] Complete. Time taken: 00:00:37.809
+2024-04-19 15:44:49 - INFO - Engine run complete. Time taken: 00:00:37.809
+2024-04-19 15:44:49 - INFO - Validation Results - Epoch: 10 total_loss: 3.63
+2024-04-19 15:44:49 - INFO - Epoch 10 done. Time per batch: 0.807[s]
+2024-04-19 15:44:49 - INFO - Epoch[10] Complete. Time taken: 00:11:32.465
+2024-04-19 15:44:49 - INFO - Engine run complete. Time taken: 01:55:49.659

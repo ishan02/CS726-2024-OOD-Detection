@@ -12,7 +12,7 @@ def build_or_get_dataset(name, root='../data',task_generation=False):
         transform = transforms.Compose([transforms.ToTensor(), preprocess])
         target_transform = one_hot_encode
     else :
-        transform = transform_cifar10
+        transform = transform_rgb
         target_transform = None
     if name == 'cifar10':
         trainset = torchvision.datasets.CIFAR10(root=root, train=True,download=True, transform=transform, target_transform=target_transform)
@@ -23,8 +23,8 @@ def build_or_get_dataset(name, root='../data',task_generation=False):
         testset = torchvision.datasets.MNIST(root=root, train=False,download=True, transform=transform_mnist)
         classes = tuple(str(i) for i in range(10))
     if name == 'svhn':
-        trainset = torchvision.datasets.SVHN(root=root, split='train',download=True, transform=transform_svhn)
-        testset = torchvision.datasets.SVHN(root=root, split='test',download=True, transform=transform_svhn)
+        trainset = torchvision.datasets.SVHN(root=root, split='train',download=True, transform=transform, target_transform=target_transform)
+        testset = torchvision.datasets.SVHN(root=root, split='test',download=True, transform=transform, target_transform=target_transform)
         classes = tuple(str(i) for i in range(10))
     return trainset, testset, classes
 
@@ -36,14 +36,11 @@ transform_mnist = transforms.Compose([
     transforms.ToTensor(),  # Convert to tensor
     transforms.Normalize((0.5,), (0.5,))  # Normalize to [-1, 1] for grayscale images
 ])
-transform_svhn = transforms.Compose([
+transform_rgb = transforms.Compose([
     transforms.ToTensor(),                                   # Convert image to PyTorch tensor
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))   # Normalize pixel values to [-1, 1]
 ])
-transform_cifar10 = transforms.Compose([
-    transforms.ToTensor(),                                   # Convert image to PyTorch tensor
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))   # Normalize pixel values to [-1, 1]
-])
+
 
 
 n_bits = 8
@@ -74,8 +71,11 @@ def imshow(img):
     if npimg.shape[0] == 1:# Determine the number of color channels (1 for grayscale, 3 for RGB)
         plt.imshow(npimg[0], cmap='gray')# Grayscale image (1 channel): Convert to 2D array (H x W)
     else:# RGB image (3 channels): Transpose the array to (H x W x C) and display
+        plt.figure(figsize=(10,10))
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
+        
     plt.show()
+    plt.axis('off')
 
 
 if __name__ == "__main__":
