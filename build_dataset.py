@@ -4,12 +4,19 @@ import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import torch.nn.functional as F
 
-def build_or_get_dataset(name, root='../data'):
+def build_or_get_dataset(name, root='../data',task_generation=False):
     assert os.path.exists(root), "data directory doesnot exist"
+    if task_generation:
+        transform = transforms.Compose([transforms.ToTensor(), preprocess])
+        target_transform = one_hot_encode
+    else :
+        transform = transform_cifar10
+        target_transform = None
     if name == 'cifar10':
-        trainset = torchvision.datasets.CIFAR10(root=root, train=True,download=True, transform=transform_cifar10)
-        testset = torchvision.datasets.CIFAR10(root=root, train=False,download=True, transform=transform_cifar10)
+        trainset = torchvision.datasets.CIFAR10(root=root, train=True,download=True, transform=transform, target_transform=target_transform)
+        testset = torchvision.datasets.CIFAR10(root=root, train=False,download=True, transform=transform, target_transform=target_transform)
         classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
     if name == 'mnist':
         trainset = torchvision.datasets.MNIST(root=root, train=True,download=True, transform=transform_mnist)
@@ -21,8 +28,8 @@ def build_or_get_dataset(name, root='../data'):
         classes = tuple(str(i) for i in range(10))
     return trainset, testset, classes
 
-def get_dataloader(set, batch_size = 64, shuffle= True):
-    dataloader = torch.utils.data.DataLoader(set, batch_size=batch_size,shuffle=shuffle)
+def get_dataloader(set, batch_size = 64, shuffle= True, drop_last=False):
+    dataloader = torch.utils.data.DataLoader(set, batch_size=batch_size,shuffle=shuffle,drop_last=drop_last)
     return dataloader
 
 transform_mnist = transforms.Compose([
@@ -37,6 +44,29 @@ transform_cifar10 = transforms.Compose([
     transforms.ToTensor(),                                   # Convert image to PyTorch tensor
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))   # Normalize pixel values to [-1, 1]
 ])
+
+
+n_bits = 8
+def preprocess(x):
+    x = x * 255  # undo ToTensor scaling to [0,1]
+    n_bins = 2 ** n_bits
+    if n_bits < 8:
+        x = torch.floor(x / 2 ** (8 - n_bits))
+    x = x / n_bins - 0.5
+    return x
+def postprocess(x):
+    x = torch.clamp(x, -0.5, 0.5)
+    x += 0.5
+    x = x * 2 ** n_bits
+    return torch.clamp(x, 0, 255).byte()
+def one_hot_encode(target):
+    num_classes = 10
+    one_hot_encoding = F.one_hot(torch.tensor(target),num_classes)
+    return one_hot_encoding
+
+
+
+
 
 def imshow(img):
     img = img / 2 + 0.5  # Unnormalize
