@@ -8,7 +8,9 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import roc_curve, auc
+import sklearn.metrics as sk
 
+recall_level_default = 0.95
 # Get the parent directory of the current script
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -34,9 +36,6 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
-logger.info("Training configuration:")
-for key, value in config.items():
-    logger.info(f"{key}: {value}")
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -52,87 +51,118 @@ criterion = nn.CrossEntropyLoss()
 checkpoint_path = f"{config['save']}_{config['load_epoch']}.pth"
 checkpoint = torch.load(checkpoint_path)
 net.load_state_dict(checkpoint['model_state_dict'])
-print(f"Checkpoint loaded from {checkpoint_path}")
+logger.info(f"Checkpoint loaded from {checkpoint_path}")
 
-def test(net, device, dataloader):
-    net.eval()
-    max_softmax_scores = []
-    progress_bar = tqdm(dataloader, desc='Testing', leave=False)
-    
+def stable_cumsum(arr, rtol=1e-05, atol=1e-08):
+    out = np.cumsum(arr, dtype=np.float64)
+    expected = np.sum(arr, dtype=np.float64)
+    if not np.allclose(out[-1], expected, rtol=rtol, atol=atol):
+        raise RuntimeError('cumsum was found to be unstable: '
+                           'its last element does not correspond to sum')
+    return out
+
+def fpr_and_fdr_at_recall(y_true, y_score, recall_level=recall_level_default, pos_label=None):
+    classes = np.unique(y_true)
+    if (pos_label is None and
+            not (np.array_equal(classes, [0, 1]) or
+                     np.array_equal(classes, [-1, 1]) or
+                     np.array_equal(classes, [0]) or
+                     np.array_equal(classes, [-1]) or
+                     np.array_equal(classes, [1]))):
+        raise ValueError("Data is not binary and pos_label is not specified")
+    elif pos_label is None:
+        pos_label = 1.
+    y_true = (y_true == pos_label)
+    desc_score_indices = np.argsort(y_score, kind="mergesort")[::-1]
+    y_score = y_score[desc_score_indices]
+    y_true = y_true[desc_score_indices]
+    distinct_value_indices = np.where(np.diff(y_score))[0]
+    threshold_idxs = np.r_[distinct_value_indices, y_true.size - 1]
+    tps = stable_cumsum(y_true)[threshold_idxs]
+    fps = 1 + threshold_idxs - tps     
+    thresholds = y_score[threshold_idxs]
+    recall = tps / tps[-1]
+    last_ind = tps.searchsorted(tps[-1])
+    sl = slice(last_ind, None, -1)      
+    recall, fps, tps, thresholds = np.r_[recall[sl], 1], np.r_[fps[sl], 0], np.r_[tps[sl], 0], thresholds[sl]
+    cutoff = np.argmin(np.abs(recall - recall_level))
+    return fps[cutoff] / (np.sum(np.logical_not(y_true))) 
+
+def get_measures(_pos, _neg, recall_level=recall_level_default):
+    pos = np.array(_pos[:]).reshape((-1, 1))
+    neg = np.array(_neg[:]).reshape((-1, 1))
+    examples = np.squeeze(np.vstack((pos, neg)))
+    labels = np.zeros(len(examples), dtype=np.int32)
+    labels[:len(pos)] += 1
+    auroc = sk.roc_auc_score(labels, examples)
+    aupr = sk.average_precision_score(labels, examples)
+    fpr = fpr_and_fdr_at_recall(labels, examples, recall_level)
+    return auroc, aupr, fpr
+
+def show_performance(pos, neg, method_name='Ours', recall_level=recall_level_default):
+    auroc, aupr, fpr = get_measures(pos[:], neg[:], recall_level)
+    logger.info(f"{method_name} : FPR{int(100 * recall_level)} {100*fpr:2f} AUROC {100*auroc:.2f} AUPR {100*aupr:.2f}")
+
+def print_measures(auroc, aupr, fpr, method_name='Ours', recall_level=recall_level_default):
+    logger.info(f"{method_name} : FPR{int(100 * recall_level)} {100*fpr:2f} AUROC {100*auroc:.2f} AUPR {100*aupr:.2f}")
+
+ood_num_examples = len(testset_in) // 5
+concat = lambda x: np.concatenate(x, axis=0)
+to_np = lambda x: x.data.cpu().numpy()
+
+def get_ood_scores(loader, score='MSP',in_dist=False, T=1):
+    _score = []
+    _right_score = []
+    _wrong_score = []
+    progress_bar = tqdm(loader, desc='Testing', leave=False)
     with torch.no_grad():
-        for inputs, targets in progress_bar:
-            inputs, targets = inputs.to(device), targets.to(device)
-            outputs = net(inputs)
-            softmax_scores = F.softmax(outputs, dim=1)
-            max_scores = softmax_scores.max(dim=1).values
-            max_softmax_scores.extend(max_scores.cpu().numpy())
+        for batch_idx, (data, target) in enumerate(progress_bar):
+            if batch_idx >= ood_num_examples // config['batch_size'] and in_dist is False:
+                break
+            data = data.to(device)
+            
+            output = net(data)
+            smax = to_np(F.softmax(output, dim=1))
+            if score == 'energy':
+                _score.append(-to_np((T*torch.logsumexp(output /T, dim=1))))
+            else: 
+                _score.append(-np.max(smax, axis=1))
+            if in_dist:
+                preds = np.argmax(smax, axis=1)
+                targets = target.numpy().squeeze()
+                right_indices = preds == targets
+                wrong_indices = np.invert(right_indices)
+                _right_score.append(-np.max(smax[right_indices], axis=1))
+                _wrong_score.append(-np.max(smax[wrong_indices], axis=1))
 
-    return max_softmax_scores
+    if in_dist:
+        return concat(_score).copy(), concat(_right_score).copy(), concat(_wrong_score).copy()
+    else:
+        return concat(_score)[:ood_num_examples].copy()
+    
+in_score_msp, right_score, wrong_score = get_ood_scores(testloader_in, in_dist=True, score='MSP')
+in_score_energy, right_score, wrong_score = get_ood_scores(testloader_in, in_dist=True, score='energy')
 
-
-def plot_softmax_histogram(max_softmax_scores_in, max_softmax_scores_out):
+def plot_histogram(in_score,out_score, score):
     plt.figure(figsize=(10, 6))
-    sns.histplot(max_softmax_scores_in, bins=500, kde=True, label='CIFAR-10', color='blue', alpha=0.7, stat='density')
-    sns.histplot(max_softmax_scores_out, bins=500, kde=True, label='SVHN', color='red', alpha=0.7, stat='density')
-    plt.xlabel('Maximum Softmax Score')
+    sns.histplot(in_score, bins=200, kde=True, label='CIFAR-10', color='blue', alpha=0.7, stat='density')
+    sns.histplot(out_score, bins=200, kde=True, label='SVHN', color='red', alpha=0.7, stat='density')
+    plt.xlabel(score)
     plt.ylabel('Density')
-    plt.title('Maximum Softmax Score Distribution: CIFAR-10 vs. SVHN')
+    plt.title(f'{score} Score Distribution: CIFAR-10 vs. SVHN')
     plt.legend()
-    plt.savefig('./WRN/fig/softmax_score_histogram.png')
+    plt.savefig(f'./WRN/fig/{score}_histogram.png')
     plt.show()
 
+def get_and_print_results(ood_loader,in_score, num_to_avg=1, score='MSP'):
+    aurocs, auprs, fprs = [], [], []
+    for _ in range(num_to_avg):
+        out_score = get_ood_scores(ood_loader, score=score)
+        measures = get_measures(-in_score, -out_score)
+        plot_histogram(-in_score, -out_score, score)
+        aurocs.append(measures[0]); auprs.append(measures[1]); fprs.append(measures[2])
+    auroc = np.mean(aurocs); aupr = np.mean(auprs); fpr = np.mean(fprs)
+    print_measures(auroc, aupr, fpr, score)
 
-max_softmax_scores_in = test(net, device, testloader_in)
-max_softmax_scores_out = test(net, device, testloader_out)
-print("max_softmax_scores_in shape:", np.shape(max_softmax_scores_in))
-print("max_softmax_scores_out shape:", np.shape(max_softmax_scores_out))
-
-plot_softmax_histogram(max_softmax_scores_in, max_softmax_scores_out)
-
-def calculate_fpr95(max_softmax_scores_in, max_softmax_scores_out):
-    # Determine the TNR (True Negative Rate) threshold for 95% TNR
-    num_in = len(max_softmax_scores_in)
-    num_out = len(max_softmax_scores_out)
-    total_negatives = num_in + num_out
-    
-    # Sort maximum softmax scores (higher score indicates more confident ID prediction)
-    all_scores = np.concatenate([max_softmax_scores_in, max_softmax_scores_out])
-    labels = np.concatenate([np.zeros(num_in), np.ones(num_out)])  # 0 for in-distribution, 1 for out-of-distribution
-    
-    # Determine threshold for achieving 95% TNR
-    thresholds = np.sort(all_scores)
-    tnr_threshold_index = int(0.95 * num_in)  # Index for 95% TNR
-    tnr_threshold = thresholds[tnr_threshold_index]
-
-    # Calculate FPR at 95% TNR
-    fpr95 = np.sum((all_scores >= tnr_threshold) & (labels == 1)) / num_out
-    
-    return fpr95
-
-def calculate_auroc(max_softmax_scores_in, max_softmax_scores_out):
-    # Concatenate scores and labels
-    all_scores = np.concatenate([max_softmax_scores_in, max_softmax_scores_out])
-    labels = np.concatenate([np.zeros(len(max_softmax_scores_in)), np.ones(len(max_softmax_scores_out))])
-    
-    # Compute ROC curve and AUROC
-    fpr, tpr, _ = roc_curve(labels, all_scores, pos_label=1)
-    auroc = auc(fpr, tpr)
-    plt.figure(figsize=(8, 6))
-    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'AUROC = {auroc:.2f}')
-    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver Operating Characteristic (ROC) Curve')
-    plt.savefig('./WRN/fig/ROC Curve.png')
-    plt.legend(loc='lower right')
-    plt.show()
-
-    return auroc
-
-
-
-fpr95 = calculate_fpr95(max_softmax_scores_in, max_softmax_scores_out)
-auroc= calculate_auroc(max_softmax_scores_in, max_softmax_scores_out)
-print(f"AUROC: {auroc:.4f}")
-
-logger.info(f"AUROC: {auroc:.4f} FPR95: {fpr95:.4f}")
+get_and_print_results(testloader_out, in_score_msp, score= 'MSP')
+get_and_print_results(testloader_out, in_score_energy, score= 'energy')
