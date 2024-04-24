@@ -2,6 +2,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchsummary import summary
 
 
 class BasicBlock(nn.Module):
@@ -114,3 +115,8 @@ class WideResNet(nn.Module):
         out = F.avg_pool2d(out, 8)
         out = out.view(-1, self.nChannels)
         return self.fc(out), out_list
+    
+
+if __name__ == '__main__' :
+    model = WideResNet(depth=40, num_classes=10, widen_factor=2).cuda()  
+    summary(model, (3, 32, 32))

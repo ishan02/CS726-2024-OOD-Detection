@@ -1,5 +1,5 @@
 import math
-
+from torchsummary import summary
 import torch
 import torch.nn as nn
 
@@ -300,3 +300,24 @@ class Glow(nn.Module):
         for name, m in self.named_modules():
             if isinstance(m, ActNorm2d):
                 m.inited = True
+
+if __name__ == '__main__' :
+    def count_parameters(model):
+        return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+    # Assuming you have already defined and initialized the WideResNet model, e.g.,
+    model = Glow(
+        image_shape=(32, 32, 3),
+        hidden_channels=512,
+        K=32,
+        L=3,
+        actnorm_scale=1.0,
+        flow_permutation='inconv',
+        flow_coupling='affine',
+        LU_decomposed=True,
+        y_classes=10,
+        learn_top=True,
+        y_condition=False,
+    )  
+    print("Total number of trainable parameters:", count_parameters(model))
+  

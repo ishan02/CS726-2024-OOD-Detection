@@ -8,11 +8,11 @@ def get_config():
         "flow_coupling":"affine",#["additive", "affine"]
         "LU_decomposed":True, #Train with LU decomposed 1x1 convs
         "learn_top":True, #train top layer (prior)
-        "y_condition": False,#Train using class condition
+        "y_condition": True,#Train using class condition
         "y_weight":0.01, #Weight for class condition loss
         "max_grad_clip":0, #Max gradient value (clip above - for off)
         "max_grad_norm":0,#Max norm of gradient (clip above - 0 for off)
-        "batch_size": 48,
+        "batch_size": 100,
         "epochs": 10, #250
         "lr": 5e-4,
         "warmup":5,
