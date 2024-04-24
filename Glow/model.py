@@ -266,7 +266,7 @@ class Glow(nn.Module):
         if reverse:
             return self.reverse_flow(z, y_onehot, temperature)
         else:
-            return self.normal_flow(x, y_onehot)
+            return self.normal_flow(x, y_onehot.to(torch.float))
 
     def normal_flow(self, x, y_onehot):
         b, c, h, w = x.shape
