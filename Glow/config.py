@@ -12,7 +12,7 @@ def get_config():
         "y_weight":0.01, #Weight for class condition loss
         "max_grad_clip":0, #Max gradient value (clip above - for off)
         "max_grad_norm":0,#Max norm of gradient (clip above - 0 for off)
-        "batch_size": 200,
+        "batch_size": 160,
         "epochs": 35, #250
         "lr": 5e-4,
         "warmup":5,
