@@ -18,7 +18,7 @@ device = torch.device("cuda")
 from config import get_config
 
 config = get_config()
-path = "./Glow/checkpoints/glow_checkpoint_7810.pt"
+path = "./Glow/checkpoints/glow_checkpoint_5000.pt"
 
 
 num_classes = 10
@@ -37,8 +37,12 @@ model = model.eval()
 def sample(model):
     with torch.no_grad():
         if config['y_condition']:
-            y = torch.eye(num_classes)
-            y = y.repeat(48 // num_classes + 1)
+
+            #y = torch.eye(num_classes)
+            y = torch.zeros(10)
+            y[9] = 1
+            y = y.repeat(35,1)
+            #y = y.repeat(48 // num_classes + 1,1)
             y = y[:32, :].to(device) # number hardcoded in model for now
         else:
             y = None
@@ -52,6 +56,6 @@ grid = make_grid(images[:30], nrow=6).permute(1,2,0)
 
 plt.figure(figsize=(10,10))
 plt.imshow(grid)
-plt.savefig('./Glow/fig/gen_images_7810.png')
+plt.savefig('./Glow/fig/class-9.png')
 plt.show()
 plt.axis('off')

@@ -187,11 +187,11 @@ pbar.attach(trainer, metric_names=monitoring_metrics)
 
 # load pre-trained model if given
 if config['saved_model']:
-    model.load_state_dict(torch.load(config['saved_model']))
+    model.load_state_dict(torch.load(config['saved_model'])['model'])
     model.set_actnorm_init()
 
     if config['saved_optimizer']:
-        optimizer.load_state_dict(torch.load(config['saved_optimizer']))
+        optimizer.load_state_dict(torch.load(config['saved_optimizer'])['optimizer'])
 
     file_name, ext = os.path.splitext(config['saved_model'])
     resume_epoch = int(file_name.split("_")[-1])

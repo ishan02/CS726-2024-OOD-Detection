@@ -18,7 +18,7 @@ device = torch.device("cuda")
 from config import get_config
 
 config = get_config()
-path = "./Glow/checkpoints/glow_checkpoint_5467.pt"
+path = "./Glow/checkpoints/glow_checkpoint_5000.pt"
 
 _, test_cifar, classes = build_or_get_dataset('cifar10', root='../data',task_generation=True)
 _, test_svhn, classes = build_or_get_dataset('svhn', root='../data',task_generation=True)
@@ -59,7 +59,7 @@ plt.xlabel("Negative bits per dimension OR log p(x)")
 plt.hist(-svhn_nll.numpy(), label="SVHN", density=True, bins=200)
 plt.hist(-cifar_nll.numpy(), label="CIFAR10", density=True, bins=200)
 plt.legend()
-plt.savefig("./Glow/fig/histogram_glow_cifar_svhn.png", dpi=300)
+plt.savefig("./Glow/fig/histogram_cond.png", dpi=300)
 plt.show()
 
 
