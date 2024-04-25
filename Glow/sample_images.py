@@ -18,7 +18,7 @@ device = torch.device("cuda")
 from config import get_config
 
 config = get_config()
-path = "./Glow/checkpoints/glow_checkpoint_5000.pt"
+path = "./Glow/checkpoints/glow_checkpoint_10000.pt"
 
 
 num_classes = 10
@@ -56,6 +56,6 @@ grid = make_grid(images[:30], nrow=6).permute(1,2,0)
 
 plt.figure(figsize=(10,10))
 plt.imshow(grid)
-plt.savefig('./Glow/fig/class-9.png')
+plt.savefig('./Glow/fig/class-2.png')
 plt.show()
 plt.axis('off')
