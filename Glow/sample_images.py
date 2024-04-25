@@ -18,7 +18,7 @@ device = torch.device("cuda")
 from config import get_config
 
 config = get_config()
-path = "./Glow/checkpoints/glow_checkpoint_10000.pt"
+path = "./Glow/checkpoints/glow_checkpoint_25.pt"
 
 
 num_classes = 10
@@ -40,7 +40,7 @@ def sample(model):
 
             #y = torch.eye(num_classes)
             y = torch.zeros(10)
-            y[9] = 1
+            y[0] = 1
             y = y.repeat(35,1)
             #y = y.repeat(48 // num_classes + 1,1)
             y = y[:32, :].to(device) # number hardcoded in model for now
