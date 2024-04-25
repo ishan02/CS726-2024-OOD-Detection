@@ -21,7 +21,7 @@ def get_config():
         "momentum":0.9,
         "decay":0.0005,
         "output_dir":'./Glow/checkpoints',
-        "saved_model": "/kaggle/input/glow-conditioned-epoch10/pytorch/20/1/glow_checkpoint_20.ptt",
+        "saved_model": "/kaggle/input/glow-conditioned-epoch10/pytorch/20/1/glow_checkpoint_20.pt",
         "saved_optimizer": "/kaggle/input/glow-conditioned-epoch10/pytorch/20/1/glow_checkpoint_20.pt",
         "seed":0
     }
