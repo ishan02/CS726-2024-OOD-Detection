@@ -13,7 +13,7 @@ def get_config():
         "max_grad_clip":0, #Max gradient value (clip above - for off)
         "max_grad_norm":0,#Max norm of gradient (clip above - 0 for off)
         "batch_size": 160,
-        "epochs": 35, #250
+        "epochs": 70, #250
         "lr": 5e-4,
         "warmup":5,
         "n_init_batches":8, #Number of batches to use for Act Norm initialisation
@@ -21,7 +21,7 @@ def get_config():
         "momentum":0.9,
         "decay":0.0005,
         "output_dir":'./Glow/checkpoints',
-        "saved_model": "/kaggle/input/glow-conditioned-epoch10/pytorch/25/1/glow_checkpoint_25.pt",
-        "saved_optimizer": "/kaggle/input/glow-conditioned-epoch10/pytorch/25/1/glow_checkpoint_25.pt",
+        "saved_model": "/kaggle/input/glow-conditioned-epoch10/pytorch/35/1/glow_checkpoint_35.pt",
+        "saved_optimizer": "/kaggle/input/glow-conditioned-epoch10/pytorch/35/1/glow_checkpoint_35.pt",
         "seed":0
     }
