@@ -23,7 +23,7 @@ device = torch.device("cuda")
 from config import get_config
 
 config = get_config()
-path = "./Glow/checkpoints/glow_checkpoint_35.pt"
+path = "./Glow/checkpoints/glow_checkpoint_10.pt"
 
 num_classes = 10
 image_shape = (32, 32, 3)
@@ -155,7 +155,7 @@ def plot_histogram(in_score,out_score, score):
     plt.ylabel('Density')
     plt.title(f'{score} Score Distribution: CIFAR-10 vs. SVHN')
     plt.legend()
-    plt.savefig(f'./Glow/fig/{score}_histogram.png')
+    plt.savefig(f'./Glow/fig/{score}_e10_histogram.png')
     plt.show()
 
 def get_and_print_results(ood_loader,in_score, num_to_avg=1, score='MSP'):
