@@ -1,3 +1,5 @@
+#changes : adjusted for generating class conditioned samples
+
 import torch
 from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
@@ -18,7 +20,7 @@ device = torch.device("cuda")
 from config import get_config
 
 config = get_config()
-path = "./Glow/checkpoints/glow_checkpoint_35.pt"
+path = "./Glow/checkpoints/glow_checkpoint_120.pt"
 
 
 num_classes = 10
@@ -33,14 +35,14 @@ model.set_actnorm_init()
 model = model.to(device)
 
 model = model.eval()
-
+# airplane, automobile, bird, cat, deer, dog, frog, horse, ship,  truck
 def sample(model):
     with torch.no_grad():
         if config['y_condition']:
 
             #y = torch.eye(num_classes)
             y = torch.zeros(10)
-            y[8] = 1
+            y[9] = 1
             y = y.repeat(35,1)
             #y = y.repeat(48 // num_classes + 1,1)
             y = y[:32, :].to(device) # number hardcoded in model for now

@@ -1,3 +1,6 @@
+# taken from the repo but there was a bug (line270) fixed by float conversion
+# number of param calculation
+
 import math
 from torchsummary import summary
 import torch

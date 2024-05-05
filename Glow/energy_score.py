@@ -1,3 +1,6 @@
+# contributions same as visualize_results.py file
+# with minor changes to load  and test glow model
+
 import torch
 from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
@@ -23,7 +26,7 @@ device = torch.device("cuda")
 from config import get_config
 
 config = get_config()
-path = "./Glow/checkpoints/glow_checkpoint_10.pt"
+path = "./Glow/checkpoints/glow_checkpoint_120.pt"
 
 num_classes = 10
 image_shape = (32, 32, 3)
@@ -125,7 +128,7 @@ def get_ood_scores(loader, score='MSP',in_dist=False, T=1):
             target = target.to(device)
 
             
-            _, _, output = model(data, y_onehot=target)
+            _, _, output = model(data, y_onehot=target) # output is class_logits assigned by gen model
             smax = to_np(F.softmax(output, dim=1))
             if score == 'energy':
                 _score.append(-to_np((T*torch.logsumexp(output /T, dim=1))))
@@ -133,7 +136,7 @@ def get_ood_scores(loader, score='MSP',in_dist=False, T=1):
                 _score.append(-np.max(smax, axis=1))
             if in_dist:
                 preds = np.argmax(smax, axis=1)
-                targets = target.cpu().numpy().squeeze()
+                targets = torch.argmax(target, dim=1).cpu().numpy().squeeze()
                 right_indices = preds == targets
                 wrong_indices = np.invert(right_indices)
                 _right_score.append(-np.max(smax[right_indices], axis=1))
@@ -143,9 +146,18 @@ def get_ood_scores(loader, score='MSP',in_dist=False, T=1):
         return concat(_score).copy(), concat(_right_score).copy(), concat(_wrong_score).copy()
     else:
         return concat(_score)[:ood_num_examples].copy()
-    
+# Calculate scores for in-distribution data using MSP      
 in_score_msp, right_score, wrong_score = get_ood_scores(testloader_in, in_dist=True, score='MSP')
-in_score_energy, right_score, wrong_score = get_ood_scores(testloader_in, in_dist=True, score='energy')
+# Calculate scores for in-distribution data using energy-based detection
+in_score_energy, _, _ = get_ood_scores(testloader_in, in_dist=True, score='energy')
+
+
+num_right = len(right_score)# Number of correctly classified samples
+num_wrong = len(wrong_score)
+print('Error Rate {:.2f}'.format(100 * num_wrong / (num_wrong + num_right)))
+print('\n\nError Detection')
+show_performance(wrong_score, right_score, method_name="in class classification accuracy")
+
 
 def plot_histogram(in_score,out_score, score):
     plt.figure(figsize=(10, 6))
@@ -155,7 +167,7 @@ def plot_histogram(in_score,out_score, score):
     plt.ylabel('Density')
     plt.title(f'{score} Score Distribution: CIFAR-10 vs. SVHN')
     plt.legend()
-    plt.savefig(f'./Glow/fig/{score}_e10_histogram.png')
+    plt.savefig(f'./Glow/fig/{score}_e119_histogram.png')
     plt.show()
 
 def get_and_print_results(ood_loader,in_score, num_to_avg=1, score='MSP'):
@@ -168,6 +180,6 @@ def get_and_print_results(ood_loader,in_score, num_to_avg=1, score='MSP'):
     auroc = np.mean(aurocs); aupr = np.mean(auprs); fpr = np.mean(fprs)
     print_measures(auroc, aupr, fpr, score)
 
-
+#ood detection results
 get_and_print_results(testloader_out, in_score_msp, score= 'MSP')
 get_and_print_results(testloader_out, in_score_energy, score= 'energy')

@@ -1,3 +1,7 @@
 2024-04-20 12:01:01 - INFO - Checkpoint loaded from ./WRN/checkpoints/epoch_13.pth
 2024-04-20 12:01:50 - INFO - MSP : FPR95 90.250000 AUROC 62.16 AUPR 89.12
 2024-04-20 12:02:15 - INFO - energy : FPR95 89.150000 AUROC 64.48 AUPR 89.46
+2024-05-05 11:49:39 - INFO - Checkpoint loaded from ./WRN/checkpoints/cifar10_wrn_pretrained_epoch_99.pt
+2024-05-05 11:49:50 - INFO - in class classification accuracy : FPR95 32.212486 AUROC 91.10 AUPR 49.91
+2024-05-05 11:49:58 - INFO - MSP : FPR95 68.700000 AUROC 86.71 AUPR 97.12
+2024-05-05 11:50:03 - INFO - energy : FPR95 62.750000 AUROC 87.69 AUPR 97.16

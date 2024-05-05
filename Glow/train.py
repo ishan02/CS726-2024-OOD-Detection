@@ -1,3 +1,8 @@
+#changes : claened code by replacing paraser with config file
+# removed irrelevant abstraction of the code
+#added logger , changes in loading data
+
+
 import os
 import random
 from itertools import islice
@@ -58,7 +63,7 @@ random.seed(config['seed'])
 torch.manual_seed(config['seed'])
 logger.info("Using seed: {seed}".format(seed=config['seed']))
 
-multi_class = False
+multi_class = False #set true if want to predict multiple labels
 image_shape = (32, 32, 3)
 
 model = Glow(image_shape,config['hidden_channels'],config['K'],config['L'],config['actnorm_scale'],
@@ -68,6 +73,7 @@ optimizer = optim.Adamax(model.parameters(), lr=config['lr'], weight_decay=5e-5)
 lr_lambda = lambda epoch: min(1.0, (epoch + 1) / config['warmup'])  # noqa
 scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lr_lambda)
 
+# Function to compute loss with specified reduction method
 def compute_loss(nll, reduction="mean"):
     if reduction == "mean":
         losses = {"nll": torch.mean(nll)}
@@ -78,7 +84,7 @@ def compute_loss(nll, reduction="mean"):
 
     return losses
 
-
+# Function to compute loss with class-specific weighting
 def compute_loss_y(nll, y_logits, y_weight, y, multi_class, reduction="mean"):
     if reduction == "mean":
         losses = {"nll": torch.mean(nll)}
@@ -99,14 +105,14 @@ def compute_loss_y(nll, y_logits, y_weight, y, multi_class, reduction="mean"):
     losses["total_loss"] = losses["nll"] + y_weight * loss_classes
 
     return losses
-
+# Training step function
 def step(engine, batch):
     model.train()
     optimizer.zero_grad()
 
     x, y = batch
     x = x.to(device)
-
+    # Forward pass
     if config['y_condition']:
         y = y.to(device)
         z, nll, y_logits = model(x, y)
@@ -116,7 +122,7 @@ def step(engine, batch):
         losses = compute_loss(nll)
 
     losses["total_loss"].backward()
-
+    # Gradient clipping
     if config['max_grad_clip'] > 0:
         torch.nn.utils.clip_grad_value_(model.parameters(), config['max_grad_clip'])
     if config['max_grad_norm'] > 0:
@@ -125,7 +131,7 @@ def step(engine, batch):
     optimizer.step()
 
     return losses
-
+# Evaluation step function
 def eval_step(engine, batch):
     model.eval()
 
@@ -144,23 +150,25 @@ def eval_step(engine, batch):
             losses = compute_loss(nll, reduction="none")
 
     return losses
-
+# Initialize training engine
 trainer = Engine(step)
+# Checkpoint handler for saving model and optimizer states
 checkpoint_handler = ModelCheckpoint(
     config['output_dir'], "glow", n_saved=2, require_empty=False
 )
-
+# Save model and optimizer state at the end of each epoch
 trainer.add_event_handler(
     Events.EPOCH_COMPLETED,
     checkpoint_handler,
     {"model": model, "optimizer": optimizer},
 )
-
+# Metrics to monitor during training
 monitoring_metrics = ["total_loss"]
+# Attach running average metric for total loss
 RunningAverage(output_transform=lambda x: x["total_loss"]).attach(
     trainer, "total_loss"
 )
-
+# Initialize evaluation engine
 evaluator = Engine(eval_step)
 
 # Note: replace by https://github.com/pytorch/ignite/pull/524 when released
@@ -171,7 +179,7 @@ Loss(
         torch.empty(x["total_loss"].shape[0]),
     ),
 ).attach(evaluator, "total_loss")
-
+# Additional setup for multi-class classification
 if config['y_condition']:
     monitoring_metrics.extend(["nll"])
     RunningAverage(output_transform=lambda x: x["nll"]).attach(trainer, "nll")
@@ -188,24 +196,24 @@ pbar.attach(trainer, metric_names=monitoring_metrics)
 # load pre-trained model if given
 if config['saved_model']:
     model.load_state_dict(torch.load(config['saved_model'])['model'])
-    model.set_actnorm_init()
+    model.set_actnorm_init()# Initialize actnorm layers
 
     if config['saved_optimizer']:
         optimizer.load_state_dict(torch.load(config['saved_optimizer'])['optimizer'])
 
     file_name, ext = os.path.splitext(config['saved_model'])
     resume_epoch = int(file_name.split("_")[-1])
-
+    # Resume training from specified epoch
     @trainer.on(Events.STARTED)
     def resume_training(engine):
         engine.state.epoch = resume_epoch
         engine.state.iteration = resume_epoch * len(engine.state.dataloader)
-
+# Initialization before training starts
 @trainer.on(Events.STARTED)
 def init(engine):
     model.train()
 
-    init_batches = []
+    init_batches = []# Initialize list to store batches
     init_targets = []
 
     with torch.no_grad():
@@ -216,14 +224,14 @@ def init(engine):
         init_batches = torch.cat(init_batches).to(device)
 
         assert init_batches.shape[0] == config['n_init_batches'] * config['batch_size']
-
+        # Convert initial targets to tensor and move to device if condition is enabled
         if config['y_condition']:
             init_targets = torch.cat(init_targets).to(device)
         else:
             init_targets = None
 
         model(init_batches, init_targets)
-
+# Evaluation at the end of each epoch
 @trainer.on(Events.EPOCH_COMPLETED)
 def evaluate(engine):
     evaluator.run(testloader)
@@ -234,7 +242,7 @@ def evaluate(engine):
     losses = ", ".join([f"{key}: {value:.2f}" for key, value in metrics.items()])
 
     logger.info(f"Validation Results - Epoch: {engine.state.epoch} {losses}")
-
+# Timer for tracking training time per epoch
 timer = Timer(average=True)
 timer.attach(
     trainer,
@@ -243,7 +251,7 @@ timer.attach(
     pause=Events.ITERATION_COMPLETED,
     step=Events.ITERATION_COMPLETED,
 )
-
+# Logging time per epoch
 @trainer.on(Events.EPOCH_COMPLETED)
 def print_times(engine):
     pbar.log_message(

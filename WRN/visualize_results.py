@@ -1,3 +1,9 @@
+#contributions and changes
+# cleaned the code by replacing parser with config file
+# cleaned the code by removing the comparison b/w different ood datas and techniques and only use that are relevant to us
+# added logger to store reults
+# added function to visuallize the plots of scores
+ 
 import numpy as np
 import os
 import sys
@@ -48,11 +54,14 @@ num_classes = len(classes)
 net = WideResNet(config['layers'], num_classes, config['widen_factor'], dropRate=config['droprate']).to(device)
 criterion = nn.CrossEntropyLoss()
 
-checkpoint_path = f"{config['save']}_{config['load_epoch']}.pth"
+checkpoint_path = "./WRN/checkpoints/cifar10_wrn_pretrained_epoch_99.pt" #f"{config['save']}_{config['load_epoch']}.pth"
 checkpoint = torch.load(checkpoint_path)
-net.load_state_dict(checkpoint['model_state_dict'])
+net.load_state_dict(checkpoint)
+#net.load_state_dict(checkpoint['model_state_dict'])
 logger.info(f"Checkpoint loaded from {checkpoint_path}")
 
+#calculates the cumulative sum of an array, checks for numerical stability by verifying that the last value 
+#matches the total sum with specified tolerances, and raises an error if they do not match.
 def stable_cumsum(arr, rtol=1e-05, atol=1e-08):
     out = np.cumsum(arr, dtype=np.float64)
     expected = np.sum(arr, dtype=np.float64)
@@ -60,7 +69,7 @@ def stable_cumsum(arr, rtol=1e-05, atol=1e-08):
         raise RuntimeError('cumsum was found to be unstable: '
                            'its last element does not correspond to sum')
     return out
-
+#computes the False Positive Rate (FPR) and False Discovery Rate (FDR) at a specified recall level
 def fpr_and_fdr_at_recall(y_true, y_score, recall_level=recall_level_default, pos_label=None):
     classes = np.unique(y_true)
     if (pos_label is None and
@@ -88,6 +97,7 @@ def fpr_and_fdr_at_recall(y_true, y_score, recall_level=recall_level_default, po
     cutoff = np.argmin(np.abs(recall - recall_level))
     return fps[cutoff] / (np.sum(np.logical_not(y_true))) 
 
+#computes the (AUROC), (AUPR), and the False Positive Rate (FPR) at the specified recall leve
 def get_measures(_pos, _neg, recall_level=recall_level_default):
     pos = np.array(_pos[:]).reshape((-1, 1))
     neg = np.array(_neg[:]).reshape((-1, 1))
@@ -106,31 +116,31 @@ def show_performance(pos, neg, method_name='Ours', recall_level=recall_level_def
 def print_measures(auroc, aupr, fpr, method_name='Ours', recall_level=recall_level_default):
     logger.info(f"{method_name} : FPR{int(100 * recall_level)} {100*fpr:2f} AUROC {100*auroc:.2f} AUPR {100*aupr:.2f}")
 
-ood_num_examples = len(testset_in) // 5
+ood_num_examples = len(testset_in) // 5 #get ood sample one fifth of in data samples
 concat = lambda x: np.concatenate(x, axis=0)
 to_np = lambda x: x.data.cpu().numpy()
 
 def get_ood_scores(loader, score='MSP',in_dist=False, T=1):
     _score = []
-    _right_score = []
+    _right_score = [] #ist to store scores for correct predictions
     _wrong_score = []
     progress_bar = tqdm(loader, desc='Testing', leave=False)
     with torch.no_grad():
         for batch_idx, (data, target) in enumerate(progress_bar):
             if batch_idx >= ood_num_examples // config['batch_size'] and in_dist is False:
-                break
+                break# Stop if out-of-distribution and specified number of examples reached
             data = data.to(device)
             
             output = net(data)
             smax = to_np(F.softmax(output, dim=1))
             if score == 'energy':
-                _score.append(-to_np((T*torch.logsumexp(output /T, dim=1))))
+                _score.append(-to_np((T*torch.logsumexp(output /T, dim=1)))) # Calculate energy score
             else: 
-                _score.append(-np.max(smax, axis=1))
+                _score.append(-np.max(smax, axis=1))  # Calculate maximum softmax probability score
             if in_dist:
                 preds = np.argmax(smax, axis=1)
                 targets = target.numpy().squeeze()
-                right_indices = preds == targets
+                right_indices = preds == targets # Index of correct predictions
                 wrong_indices = np.invert(right_indices)
                 _right_score.append(-np.max(smax[right_indices], axis=1))
                 _wrong_score.append(-np.max(smax[wrong_indices], axis=1))
@@ -139,9 +149,16 @@ def get_ood_scores(loader, score='MSP',in_dist=False, T=1):
         return concat(_score).copy(), concat(_right_score).copy(), concat(_wrong_score).copy()
     else:
         return concat(_score)[:ood_num_examples].copy()
-    
+# Calculate scores for in-distribution data using MSP   
 in_score_msp, right_score, wrong_score = get_ood_scores(testloader_in, in_dist=True, score='MSP')
+# Calculate scores for in-distribution data using energy-based detection
 in_score_energy, right_score, wrong_score = get_ood_scores(testloader_in, in_dist=True, score='energy')
+
+num_right = len(right_score)# Number of correctly classified samples
+num_wrong = len(wrong_score)
+print('Error Rate {:.2f}'.format(100 * num_wrong / (num_wrong + num_right)))
+print('\n\nError Detection')
+show_performance(wrong_score, right_score, method_name="in class classification accuracy")
 
 def plot_histogram(in_score,out_score, score):
     plt.figure(figsize=(10, 6))
@@ -163,6 +180,6 @@ def get_and_print_results(ood_loader,in_score, num_to_avg=1, score='MSP'):
         aurocs.append(measures[0]); auprs.append(measures[1]); fprs.append(measures[2])
     auroc = np.mean(aurocs); aupr = np.mean(auprs); fpr = np.mean(fprs)
     print_measures(auroc, aupr, fpr, score)
-
+#ood detection results
 get_and_print_results(testloader_out, in_score_msp, score= 'MSP')
 get_and_print_results(testloader_out, in_score_energy, score= 'energy')

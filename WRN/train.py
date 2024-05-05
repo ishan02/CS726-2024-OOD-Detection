@@ -1,3 +1,4 @@
+# contributed by the team 
 import numpy as np
 import os
 import torch
@@ -16,8 +17,8 @@ sys.path.append(parent_dir)
 from build_dataset import build_or_get_dataset, get_dataloader
 from config import get_config
 from wide_resnet import WideResNet
-config = get_config()
-log_dir = './WRN/logs'
+config = get_config()#load config file
+log_dir = './WRN/logs'# create a logger to store results
 os.makedirs(log_dir, exist_ok=True)
 os.makedirs(config['folder'], exist_ok=True)
 
@@ -40,7 +41,7 @@ for key, value in config.items():
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 logger.info(f"Using Device: {device}")
 
-trainset, testset_in, classes = build_or_get_dataset('cifar10', '../data')
+trainset, testset_in, classes = build_or_get_dataset('cifar10', '../data')#load dataset
 _, testset_out, _= build_or_get_dataset('svhn', '../data')
 
 trainloader = get_dataloader(trainset, batch_size = config["batch_size"])
@@ -70,6 +71,7 @@ scheduler = torch.optim.lr_scheduler.LambdaLR(
         1,  # since lr_lambda computes multiplicative factor
         1e-6 / config['learning_rate']))
 
+#if preload true then load the model optim and initiate scheduler
 if config['preload']:
     checkpoint_path = f"{config['save']}_{config['load_epoch']}.pth"
     checkpoint = torch.load(checkpoint_path)
@@ -122,7 +124,7 @@ def test(net, device, dataloader, epoch, output_type='both'):
             max_scores = softmax_scores.max(dim=1).values
             max_softmax_scores.extend(max_scores.cpu().numpy())
 
-            if output_type == 'both':
+            if output_type == 'both':#if we are testing on in class data then we also want to see lassification accuracy
                 _, predicted = outputs.max(1)
                 total += targets.size(0)
                 correct += predicted.eq(targets).sum().item()

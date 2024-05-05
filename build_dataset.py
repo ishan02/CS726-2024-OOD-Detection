@@ -1,3 +1,4 @@
+#contributed #biulds or load the dataset
 import torch
 import torchvision
 import torchvision.transforms as transforms
@@ -44,14 +45,14 @@ transform_rgb = transforms.Compose([
 
 
 n_bits = 8
-def preprocess(x):
+def preprocess(x):#quantization
     x = x * 255  # undo ToTensor scaling to [0,1]
     n_bins = 2 ** n_bits
     if n_bits < 8:
         x = torch.floor(x / 2 ** (8 - n_bits))
     x = x / n_bins - 0.5
     return x
-def postprocess(x):
+def postprocess(x): #dequantization
     x = torch.clamp(x, -0.5, 0.5)
     x += 0.5
     x = x * 2 ** n_bits
