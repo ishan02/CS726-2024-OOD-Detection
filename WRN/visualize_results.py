@@ -54,10 +54,10 @@ num_classes = len(classes)
 net = WideResNet(config['layers'], num_classes, config['widen_factor'], dropRate=config['droprate']).to(device)
 criterion = nn.CrossEntropyLoss()
 
-checkpoint_path = "./WRN/checkpoints/cifar10_wrn_pretrained_epoch_99.pt" #f"{config['save']}_{config['load_epoch']}.pth"
+checkpoint_path =  f"{config['save']}_{config['load_epoch']}.pth"
 checkpoint = torch.load(checkpoint_path)
-net.load_state_dict(checkpoint)
-#net.load_state_dict(checkpoint['model_state_dict'])
+#net.load_state_dict(checkpoint)
+net.load_state_dict(checkpoint['model_state_dict'])
 logger.info(f"Checkpoint loaded from {checkpoint_path}")
 
 #calculates the cumulative sum of an array, checks for numerical stability by verifying that the last value 

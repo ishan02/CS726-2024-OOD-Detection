@@ -36,13 +36,14 @@ model = model.to(device)
 
 model = model.eval()
 # airplane, automobile, bird, cat, deer, dog, frog, horse, ship,  truck
+clss = 9
 def sample(model):
     with torch.no_grad():
         if config['y_condition']:
 
             #y = torch.eye(num_classes)
             y = torch.zeros(10)
-            y[9] = 1
+            y[clss] = 1
             y = y.repeat(35,1)
             #y = y.repeat(48 // num_classes + 1,1)
             y = y[:32, :].to(device) # number hardcoded in model for now
@@ -58,6 +59,6 @@ grid = make_grid(images[:30], nrow=6).permute(1,2,0)
 
 plt.figure(figsize=(10,10))
 plt.imshow(grid)
-plt.savefig('./Glow/fig/class-2.png')
+plt.savefig(f'./Glow/fig/gen-img-class{clss}.png')
 plt.show()
 plt.axis('off')

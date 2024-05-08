@@ -149,7 +149,7 @@ def get_ood_scores(loader, score='MSP',in_dist=False, T=1):
 # Calculate scores for in-distribution data using MSP      
 in_score_msp, right_score, wrong_score = get_ood_scores(testloader_in, in_dist=True, score='MSP')
 # Calculate scores for in-distribution data using energy-based detection
-in_score_energy, _, _ = get_ood_scores(testloader_in, in_dist=True, score='energy')
+in_score_energy, right_score, wrong_score = get_ood_scores(testloader_in, in_dist=True, score='energy')
 
 
 num_right = len(right_score)# Number of correctly classified samples
@@ -165,9 +165,9 @@ def plot_histogram(in_score,out_score, score):
     sns.histplot(out_score, bins=200, kde=True, label='SVHN', color='red', alpha=0.7, stat='density')
     plt.xlabel(score)
     plt.ylabel('Density')
-    plt.title(f'{score} Score Distribution: CIFAR-10 vs. SVHN')
+    plt.title(f'{score}Score Distribution: CIFAR-10 vs. SVHN')
     plt.legend()
-    plt.savefig(f'./Glow/fig/{score}_e119_histogram.png')
+    plt.savefig(f'./Glow/fig/{score} t=0.1_e120_histogram.png')
     plt.show()
 
 def get_and_print_results(ood_loader,in_score, num_to_avg=1, score='MSP'):

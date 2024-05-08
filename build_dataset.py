@@ -10,7 +10,7 @@ import torch.nn.functional as F
 def build_or_get_dataset(name, root='../data',task_generation=False):
     assert os.path.exists(root), "data directory doesnot exist"
     if task_generation:
-        transform = transforms.Compose([transforms.ToTensor(), preprocess])
+        transform = transform_cifar#transforms.Compose([transforms.ToTensor(), preprocess])
         target_transform = one_hot_encode
     else :
         transform = transform_rgb
@@ -41,7 +41,10 @@ transform_rgb = transforms.Compose([
     transforms.ToTensor(),                                   # Convert image to PyTorch tensor
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))   # Normalize pixel values to [-1, 1]
 ])
-
+transform_cifar = transforms.Compose([
+    transforms.ToTensor(),                                   # Convert image to PyTorch tensor
+    transforms.Normalize([x / 255 for x in [125.3, 123.0, 113.9]], [x / 255 for x in [63.0, 62.1, 66.7]])   # Normalize pixel values to [-1, 1]
+])
 
 
 n_bits = 8
